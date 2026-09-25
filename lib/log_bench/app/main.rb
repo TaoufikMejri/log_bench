@@ -57,7 +57,7 @@ module LogBench
       end
 
       def setup_screen
-        self.screen = Screen.new
+        self.screen = Screen.new(state)
         screen.setup
       end
 

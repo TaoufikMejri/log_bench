@@ -163,6 +163,12 @@ module LogBench
         when "t", "T"
           state.toggle_text_selection_mode
           screen.turn_text_selection_mode(state.text_selection_mode?)
+        when "["
+          state.narrow_left_pane
+          handle_panel_resize
+        when "]"
+          state.widen_left_pane
+          handle_panel_resize
         when "y", "Y"
           copy_handler.copy_to_clipboard
         when CTRL_L
@@ -172,6 +178,11 @@ module LogBench
         when ESC
           handle_escape
         end
+      end
+
+      def handle_panel_resize
+        screen.rebuild_windows
+        renderer&.invalidate_caches
       end
 
       def toggle_pane_focus

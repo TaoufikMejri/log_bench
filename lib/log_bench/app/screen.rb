@@ -28,6 +28,10 @@ module LogBench
 
       attr_reader :header_win, :log_win, :panel_width, :detail_win
 
+      def initialize(state = State.instance)
+        self.state = state
+      end
+
       def setup
         init_screen
         setup_colors
@@ -75,8 +79,17 @@ module LogBench
         setup_windows
       end
 
+      def rebuild_windows
+        clear
+        refresh
+
+        cleanup_windows
+        setup_windows
+      end
+
       private
 
+      attr_accessor :state
       attr_writer :header_win, :log_win, :panel_width, :detail_win
 
       def clear_screen_immediately
@@ -131,7 +144,7 @@ module LogBench
       end
 
       def setup_windows
-        self.panel_width = width / 2 - 2
+        self.panel_width = (width * state.panel_split_ratio).to_i - 2
 
         self.header_win = Window.new(HEADER_HEIGHT, width, 0, 0)
         self.log_win = Window.new(height - HEADER_HEIGHT, panel_width, HEADER_HEIGHT, 0)

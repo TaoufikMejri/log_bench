@@ -14,7 +14,12 @@ module LogBench
       NUMERIC_VALUE_REGEX = /\A-?\d+(?:\.\d+)?\z/
       NUMERIC_COMPARISON_EPSILON = 0.0001
 
-      attr_reader :main_filter, :sort, :detail_filter, :cleared_requests, :start_time, :stats, :total_queries, :active_request_filter_column
+      PANEL_SPLIT_DEFAULT = 0.5
+      PANEL_SPLIT_MIN = 0.2
+      PANEL_SPLIT_MAX = 0.8
+      PANEL_SPLIT_STEP = 0.05
+
+      attr_reader :main_filter, :sort, :detail_filter, :cleared_requests, :start_time, :stats, :total_queries, :active_request_filter_column, :panel_split_ratio
       attr_accessor :requests, :orphan_requests, :auto_scroll, :scroll_offset, :selected, :detail_scroll_offset, :detail_selected_entry, :text_selection_mode, :update_available, :update_version
 
       def initialize
@@ -44,6 +49,7 @@ module LogBench
         self.start_time = Time.now
         self.stats = Stats.new
         self.total_queries = 0
+        self.panel_split_ratio = PANEL_SPLIT_DEFAULT
       end
 
       def running?
@@ -60,6 +66,14 @@ module LogBench
 
       def toggle_text_selection_mode
         self.text_selection_mode = !text_selection_mode
+      end
+
+      def widen_left_pane
+        self.panel_split_ratio = (panel_split_ratio + PANEL_SPLIT_STEP).clamp(PANEL_SPLIT_MIN, PANEL_SPLIT_MAX)
+      end
+
+      def narrow_left_pane
+        self.panel_split_ratio = (panel_split_ratio - PANEL_SPLIT_STEP).clamp(PANEL_SPLIT_MIN, PANEL_SPLIT_MAX)
       end
 
       def text_selection_mode?
@@ -376,7 +390,7 @@ module LogBench
 
       attr_reader :request_filters
       attr_accessor :focused_pane, :running, :job_ids_map
-      attr_writer :main_filter, :detail_filter, :sort, :cleared_requests, :start_time, :stats, :total_queries, :request_filters, :active_request_filter_column
+      attr_writer :main_filter, :detail_filter, :sort, :cleared_requests, :start_time, :stats, :total_queries, :request_filters, :active_request_filter_column, :panel_split_ratio
 
       def build_request_filters
         REQUEST_FILTER_COLUMNS.to_h { |column| [column, Filter.new] }
